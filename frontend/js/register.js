@@ -13,6 +13,4 @@ function register() {
 
     alert("Registration submitted");
 
-    // later:
-    // fetch("/register", { ... })
 }
