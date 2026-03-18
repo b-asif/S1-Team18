@@ -75,3 +75,7 @@ h1 {
     display: inline;
     width: auto;
 }
+
+.card .sub-link {
+    color: #7aa2ff
+}
