@@ -1,0 +1,4 @@
+# ignore database credentials 
+src/db.properties
+
+.idea/
