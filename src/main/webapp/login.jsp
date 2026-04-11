@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - TrackHire</title>
+    <link rel="stylesheet" href="css/loginPage.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="page-wrapper">
+
+        <!-- Left branding panel -->
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="8" fill="white" fill-opacity="0.15"/>
+                        <path d="M8 16l5 5 11-10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="logo-text">TrackHire</span>
+                </div>
+
+                <div class="brand-headline">
+                    <h1>Your next opportunity<br>starts here.</h1>
+                    <p>Track applications, manage interviews, and land the job - all in one place.</p>
+                </div>
+
+                <div class="brand-stats">
+                    <div class="stat">
+                        <span class="stat-number">10k+</span>
+                        <span class="stat-label">Jobs tracked</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-number">4.8★</span>
+                        <span class="stat-label">User rating</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-number">2k+</span>
+                        <span class="stat-label">Offers received</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="form-panel">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Welcome back</h2>
+                    <p>Sign in to continue tracking your job search.</p>
+                </div>
+
+                <div id="successMsg" style="display:none;padding:10px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;font-size:13px;color:#059669;margin-bottom:16px;">
+                    Account created! You can now sign in.
+                </div>
+
+                <form class="login-form" onsubmit="event.preventDefault(); login();">
+                    <div id="formError" class="error-banner"></div>
+
+                    <div class="field-group">
+                        <label for="email">Email or username</label>
+                        <input
+                            id="email"
+                            name="identifier"
+                            type="text"
+                            placeholder="you@example.com"
+                            autocomplete="username">
+                    </div>
+
+                    <div class="field-group">
+                        <div class="label-row">
+                            <label for="password">Password</label>
+                            <a href="#" class="forgot-link">Forgot password?</a>
+                        </div>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" class="btn-primary">Sign in</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="register.jsp" class="link">Create one for free</a></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+
+</html>
