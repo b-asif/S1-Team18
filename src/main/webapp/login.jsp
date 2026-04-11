@@ -62,7 +62,7 @@
                     Account created! You can now sign in.
                 </div>
 
-                <form class="login-form" onsubmit="event.preventDefault(); login();">
+                <form class="login-form" action="login" method="post">
                     <div id="formError" class="error-banner"></div>
 
                     <div class="field-group">
@@ -99,7 +99,7 @@
 
     </div>
 
-    <script src="js/login.js"></script>
+
 </body>
 
 </html>
