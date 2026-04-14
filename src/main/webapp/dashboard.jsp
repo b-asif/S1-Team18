@@ -1,3 +1,5 @@
+<%@ page import="java.util.List" %>
+<%@ page import="com.myapp.model.Application" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     if (session.getAttribute("userId") == null) {
@@ -165,6 +167,24 @@
 
             <div class="dash-row">
 
+                <div class="section" style="margin-bottom: 24px;">
+                    <div class="section-header">
+                        <h2>Add New Application</h2>
+                    </div>
+                    <form action="applications" method="post" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" name="jobTitle" placeholder="Job Title" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+                        <input type="text" name="companyName" placeholder="Company Name" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+                        <select name="appStatus" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Offer">Offer</option>
+                        </select>
+                        <input type="date" name="dateApplied" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button type="submit" style="padding: 8px 16px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">Add</button>
+                    </form>
+                </div>
+                
                 <div class="section">
                     <div class="section-header">
                         <h2>Recent Applications</h2>
@@ -180,7 +200,29 @@
                                     <th>Date Applied</th>
                                 </tr>
                             </thead>
-                            <tbody id="recentAppsBody"></tbody>
+                            <tbody>
+                                <%
+                                    List<Application> apps = (List<Application>) request.getAttribute("applications");
+                                    if (apps != null && !apps.isEmpty()) {
+                                        for (Application app : apps) {
+                                %>
+                                    <tr>
+                                        <td><%= app.getJobTitle() %></td>
+                                        <td><%= app.getCompanyName() %></td>
+                                        <td><%= app.getAppStatus() %></td>
+                                        <td><%= app.getDateApplied() %></td>
+                                    </tr>
+                                <%
+                                        }
+                                    } else {
+                                %>
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 20px; color: #6b7280;">No applications tracked yet. Add one above!</td>
+                                    </tr>
+                                <%
+                                    }
+                                %>
+                            </tbody>
                         </table>
                     </div>
                 </div>
