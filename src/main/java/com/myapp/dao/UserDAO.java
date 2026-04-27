@@ -24,7 +24,8 @@ public class UserDAO {
                 User user = new User(
                     rs.getInt("id"),
                     rs.getString("name"),
-                    rs.getString("email")
+                    rs.getString("email"),
+                    rs.getString("username")
                 );
                 users.add(user);
             }

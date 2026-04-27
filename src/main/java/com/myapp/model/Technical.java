@@ -3,6 +3,7 @@ import java.sql.Date;
 import java.sql.Time;
 
 public class Technical {
+	private int assessmentId;
 	private String assessmentTitle;
     private Date assignedDate;
     private Date dueDate;
@@ -10,6 +11,12 @@ public class Technical {
     private String completionStatus;
     private String scoreOrPassFail;
     
+    public int getAssessmentId() {
+    	return assessmentId;
+    }
+    public void setAssessmentId(int assessmentId) {
+    	this.assessmentId = assessmentId;
+    }
 	public String getAssessmentTitle() {
 		return assessmentTitle;
 	}

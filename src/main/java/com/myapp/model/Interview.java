@@ -3,7 +3,8 @@ import java.sql.Date;
 import java.sql.Time;
 
 public class Interview {
-    private String roleTitle;
+	private int interviewId;
+	private String roleTitle;
     private String departmentName;
     private String interviewerName;
     private String interviewType;
@@ -13,6 +14,12 @@ public class Interview {
     private String location;
     private String notes;
     
+    public int getInterviewId() {
+		return interviewId;
+	}
+	public void setInterviewId(int interviewId) {
+		this.interviewId = interviewId;
+	}
 	public String getRoleTitle() {
 		return roleTitle;
 	}

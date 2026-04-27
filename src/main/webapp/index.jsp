@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Welcome to DBMS Project</h1>
+    <h1>Welcome to our DBMS Project</h1>
     <p><a href="users">View Users</a></p>
 </body>
 </html>
