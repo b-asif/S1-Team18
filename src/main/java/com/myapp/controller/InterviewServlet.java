@@ -51,7 +51,7 @@ public class InterviewServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        // Delete
+        // DELETE
         if ("delete".equals(action)) {
             String idParam = request.getParameter("interviewId");
 
@@ -69,7 +69,7 @@ public class InterviewServlet extends HttpServlet {
             return;
         }
 
-        // Add (default)
+        // ADD (default)
         int userId = (int) session.getAttribute("userId");
 
         String roleTitle = request.getParameter("roleTitle");
@@ -90,7 +90,7 @@ public class InterviewServlet extends HttpServlet {
 
         try {
             Date interviewDate = Date.valueOf(dateStr);
-            Time startTime = Time.valueOf(startTimeStr + ":00"); // expects HH:mm
+            Time startTime = Time.valueOf(startTimeStr + ":00"); // expects HH:MM
             Time endTime = null;
 
             if (!isBlank(endTimeStr)) {
