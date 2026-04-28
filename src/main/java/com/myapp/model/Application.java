@@ -2,10 +2,14 @@ package com.myapp.model;
 import java.sql.Date;
 
 public class Application {
+    private int applicationId;
     private String jobTitle;
     private String companyName;
     private String appStatus;
     private Date dateApplied;
+
+    public int getApplicationId() { return applicationId; }
+    public void setApplicationId(int applicationId) { this.applicationId = applicationId; }
 
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
