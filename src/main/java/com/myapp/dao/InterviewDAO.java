@@ -19,7 +19,7 @@ public class InterviewDAO {
 
         String sql = "SELECT interviewId, roleTitle, departmentName, interviewerName, " +
                      "interviewType, interviewDate, startTime, endTime, location, notes " +
-                     "FROM Interviews WHERE userId = ? ORDER BY interviewDate DESC";
+                     "FROM interviews WHERE userId = ? ORDER BY interviewDate DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -91,7 +91,7 @@ public class InterviewDAO {
     }
 
     public boolean deleteInterview(int interviewId, int userId) {
-        String sql = "DELETE FROM Interviews WHERE interviewId = ? AND userId = ?";
+        String sql = "DELETE FROM interviews WHERE interviewId = ? AND userId = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
