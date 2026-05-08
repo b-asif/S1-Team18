@@ -45,15 +45,15 @@
                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
                 Dashboard
             </a>
-            <a href="applications" class="nav-item active">
+            <a href="applications" class="nav-item">
                 <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
                 Applications
             </a>
-            <a href="interviews.jsp" class="nav-item">
+            <a href="interviews.jsp" class="nav-item active">
                 <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4m8-4v4M3 10h18"/></svg>
                 Interviews
             </a>
-            <a href="assessments.jsp" class="nav-item">
+            <a href="technicals.jsp" class="nav-item">
                 <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6m-6 4h4"/></svg>
                 Assessments
             </a>
@@ -179,7 +179,7 @@
                     <select name="interviewType">
                         <option value="Phone">Phone</option>
                         <option value="Virtual">Virtual</option>
-                        <option value="Onsite">Onsite</option>
+                        <option value="Onsite">On-site</option>
                     </select>
 
                     <input type="date" name="interviewDate" required>

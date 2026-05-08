@@ -61,7 +61,7 @@
 %>
 
     <tr>
-        <td><%= user.getuserName() %></td>
+        <td><%= user.getUserName() %></td>
         <td><%= user.getName() %></td>
         <td><%= user.getId() %></td>
         <td><%= user.getEmail() %></td>
