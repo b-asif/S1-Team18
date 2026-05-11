@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,20 +15,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.myapp.util.CsrfUtil;
 import com.myapp.util.DBConnection;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(RegisterServlet.class.getName());
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        if (!CsrfUtil.isValidToken(req)) {
+            resp.sendRedirect("register.jsp?error=csrf");
+            return;
+        }
 
-        String firstName = req.getParameter("firstName");
-        String lastName = req.getParameter("lastName");
-        String email = req.getParameter("email");
-        String userName = req.getParameter("userName");
+        String firstName = trim(req.getParameter("firstName"));
+        String lastName = trim(req.getParameter("lastName"));
+        String email = trim(req.getParameter("email"));
+        String userName = trim(req.getParameter("userName"));
         String password = req.getParameter("password");
 
         if (isBlank(firstName) || isBlank(lastName) || isBlank(email)
@@ -34,7 +43,7 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        if (password.length() < 6) {
+        if (password.length() < 8) {
             resp.sendRedirect("register.jsp?error=password");
             return;
         }
@@ -56,25 +65,29 @@ public class RegisterServlet extends HttpServlet {
 
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-            String insertSql = "INSERT INTO Users (firstName, lastName, email, userName, password) VALUES (?, ?, ?, ?, ?)";
+            String insertSql = "INSERT INTO Users (firstName, lastName, email, userName, password, isAdmin) VALUES (?, ?, ?, ?, ?, 0)";
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                insertStmt.setString(1, firstName);
-                insertStmt.setString(2, lastName);
-                insertStmt.setString(3, email);
-                insertStmt.setString(4, userName);
+                insertStmt.setString(1, firstName.trim());
+                insertStmt.setString(2, lastName.trim());
+                insertStmt.setString(3, email.trim());
+                insertStmt.setString(4, userName.trim());
                 insertStmt.setString(5, hashedPassword);
                 insertStmt.executeUpdate();
             }
 
             resp.sendRedirect("login.jsp?registered=1");
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Registration failed due to server error.", e);
             resp.sendRedirect("register.jsp?error=server");
         }
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String trim(String value) {
+        return value == null ? "" : value.trim();
     }
 }
