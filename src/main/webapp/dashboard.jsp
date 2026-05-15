@@ -40,7 +40,7 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="dashboard.jsp" class="nav-item active">
+            <a href="dashboard" class="nav-item active">
                 <svg viewBox="0 0 24 24">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     <path d="M9 22V12h6v10"/>
@@ -48,7 +48,7 @@
                 Dashboard
             </a>
 
-            <a href="applications.jsp" class="nav-item">
+            <a href="applications" class="nav-item">
                 <svg viewBox="0 0 24 24">
                     <rect x="2" y="7" width="20" height="14" rx="2"/>
                     <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
@@ -56,7 +56,7 @@
                 Applications
             </a>
 
-            <a href="interviews.jsp" class="nav-item">
+            <a href="interviews" class="nav-item">
                 <svg viewBox="0 0 24 24">
                     <rect x="3" y="4" width="18" height="18" rx="2"/>
                     <path d="M8 2v4m8-4v4M3 10h18"/>
@@ -64,7 +64,7 @@
                 Interviews
             </a>
 
-            <a href="assessments.jsp" class="nav-item">
+            <a href="assessments" class="nav-item">
                 <svg viewBox="0 0 24 24">
                     <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
                     <rect x="9" y="3" width="6" height="4" rx="1"/>
@@ -73,7 +73,7 @@
                 Assessments
             </a>
 
-            <a href="statistics.jsp" class="nav-item">
+            <a href="statistics" class="nav-item">
                 <svg viewBox="0 0 24 24">
                     <path d="M18 20V10M12 20V4M6 20v-4"/>
                 </svg>
@@ -188,7 +188,7 @@
                 <div class="section">
                     <div class="section-header">
                         <h2>Recent Applications</h2>
-                        <a href="applications.jsp" style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;">View all →</a>
+                        <a href="applications" style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;">View all →</a>
                     </div>
                     <div class="table-wrap">
                         <table class="data-table">
