@@ -30,7 +30,7 @@
 
     <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="dashboard.jsp" class="sidebar-logo">
+            <a href="dashboard" class="sidebar-logo">
                 <div class="sidebar-logo-icon">
                     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 8l3.5 3.5L13 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>

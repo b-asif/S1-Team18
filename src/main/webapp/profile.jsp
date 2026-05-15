@@ -59,7 +59,7 @@
 
     <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="dashboard.jsp" class="sidebar-logo">
+            <a href="dashboard" class="sidebar-logo">
                 <div class="sidebar-logo-icon">
                     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 8l3.5 3.5L13 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -70,7 +70,7 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="dashboard.jsp" class="nav-item">
+            <a href="dashboard" class="nav-item">
                 <svg viewBox="0 0 24 24">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     <path d="M9 22V12h6v10"/>
