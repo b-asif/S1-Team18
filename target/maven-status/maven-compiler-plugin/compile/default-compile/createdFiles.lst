@@ -1,4 +1,5 @@
 com/myapp/util/DBConnection.class
+com/myapp/controller/TechnicalServlet.class
 com/myapp/controller/UserServlet.class
 com/myapp/model/User.class
 com/myapp/controller/ProfileServlet.class
@@ -6,8 +7,13 @@ com/myapp/controller/DashboardServlet.class
 com/myapp/controller/ApplicationServlet.class
 com/myapp/controller/ForgotPasswordServlet.class
 com/myapp/controller/LogoutServlet.class
+com/myapp/model/Interview.class
+com/myapp/controller/InterviewServlet.class
+com/myapp/dao/InterviewDAO.class
 com/myapp/controller/LoginServlet.class
 com/myapp/dao/UserDAO.class
+com/myapp/dao/TechnicalDAO.class
 com/myapp/model/Application.class
 com/myapp/dao/ApplicationDAO.class
 com/myapp/controller/RegisterServlet.class
+com/myapp/model/Technical.class

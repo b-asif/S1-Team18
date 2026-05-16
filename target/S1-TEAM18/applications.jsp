@@ -29,7 +29,7 @@
 
     <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="dashboard.jsp" class="sidebar-logo">
+            <a href="dashboard" class="sidebar-logo">
                 <div class="sidebar-logo-icon">
                     <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 8l3.5 3.5L13 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -40,7 +40,7 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="dashboard.jsp" class="nav-item">
+            <a href="dashboard" class="nav-item">
                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
                 Dashboard
             </a>
@@ -48,15 +48,15 @@
                 <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
                 Applications
             </a>
-            <a href="interviews.jsp" class="nav-item">
+            <a href="interviews" class="nav-item">
                 <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4m8-4v4M3 10h18"/></svg>
                 Interviews
             </a>
-            <a href="assessments.jsp" class="nav-item">
+            <a href="technicals" class="nav-item">
                 <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6m-6 4h4"/></svg>
                 Assessments
             </a>
-            <a href="statistics.jsp" class="nav-item">
+            <a href="statistics" class="nav-item">
                 <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-4"/></svg>
                 Statistics
             </a>

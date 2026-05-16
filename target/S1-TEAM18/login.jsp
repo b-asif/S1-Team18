@@ -74,13 +74,14 @@
                     <div id="formError" class="error-banner"></div>
 
                     <div class="field-group">
-                        <label for="email">Email or username</label>
+                        <label for="email">Email or Username</label>
                         <input
                             id="email"
                             name="identifier"
                             type="text"
-                            placeholder="you@example.com"
-                            autocomplete="username">
+                            placeholder="you@example.com or yourUsername"
+                            autocomplete="username"
+                            required>
                     </div>
 
                     <div class="field-group">
