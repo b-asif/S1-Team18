@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.myapp.util.CsrfUtil" %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,6 +16,7 @@
 <body>
     <%
         String regError = request.getParameter("error");
+        String csrfToken = CsrfUtil.getOrCreateToken(session);
     %>
 
     <div class="page-wrapper">
@@ -54,12 +56,15 @@
                 <% } else if ("exists".equals(regError)) { %>
                     <div class="error-banner visible">Email or username already exists.</div>
                 <% } else if ("password".equals(regError)) { %>
-                    <div class="error-banner visible">Password must be at least 6 characters.</div>
+                    <div class="error-banner visible">Password must be at least 8 characters.</div>
+                <% } else if ("csrf".equals(regError)) { %>
+                    <div class="error-banner visible">Session validation failed. Please resubmit the form.</div>
                 <% } else if ("server".equals(regError)) { %>
                     <div class="error-banner visible">Server error. Please try again.</div>
                 <% } %>
 
                 <form class="register-form" action="register" method="post" novalidate>
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div class="field-row">
                         <div class="field-group">
                             <label for="firstName">First name</label>
@@ -88,7 +93,7 @@
 
                     <div class="field-group">
                         <label for="password">Password</label>
-                        <input id="password" name="password" type="password" placeholder="Create a password (min. 6 characters)" autocomplete="new-password">
+                        <input id="password" name="password" type="password" placeholder="Create a password (min. 8 characters)" autocomplete="new-password">
                         <span class="field-error" id="passwordError"></span>
                     </div>
 

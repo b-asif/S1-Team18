@@ -1,4 +1,6 @@
 <%@ page import="com.myapp.model.User" %>
+<%@ page import="com.myapp.util.CsrfUtil" %>
+<%@ page import="com.myapp.util.HtmlUtil" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     if (session.getAttribute("userId") == null) {
@@ -40,7 +42,11 @@
     else if ("pwwrong".equals(errorParam))   errorMsg = "Current password is incorrect.";
     else if ("delmissing".equals(errorParam)) errorMsg = "Please enter your password to confirm deletion.";
     else if ("delwrong".equals(errorParam))   errorMsg = "Incorrect password. Account not deleted.";
+    else if ("delphrase".equals(errorParam)) errorMsg = "Type the exact confirmation phrase shown below.";
+    else if ("csrf".equals(errorParam))      errorMsg = "Session validation failed. Please resubmit.";
     else if ("server".equals(errorParam))    errorMsg = "A server error occurred. Please try again.";
+
+    String csrfToken = CsrfUtil.getOrCreateToken(session);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -109,6 +115,12 @@
                 </svg>
                 Statistics
             </a>
+            <% if (Boolean.TRUE.equals(session.getAttribute("isAdmin"))) { %>
+            <a href="users" class="nav-item">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Users
+            </a>
+            <% } %>
         </nav>
 
         <div class="sidebar-footer">
@@ -120,14 +132,17 @@
                 Profile
             </a>
 
-            <a href="logout" class="btn-logout" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
+            <form action="logout" method="post" style="margin:0;">
+                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+                <button type="submit" class="btn-logout" style="display:inline-flex;align-items:center;justify-content:center;width:100%;background:none;border:none;">
                 <svg viewBox="0 0 24 24">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
                 Log Out
-            </a>
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -144,10 +159,10 @@
 
                 <!-- Left: avatar card -->
                 <div class="profile-card">
-                    <div class="avatar"><%= initials %></div>
-                    <h3><%= firstName %> <%= lastName %></h3>
-                    <p><%= email %></p>
-                    <p style="margin-top:4px;font-size:12px;color:#94a3b8;">@<%= userName %></p>
+                    <div class="avatar"><%= HtmlUtil.escape(initials) %></div>
+                    <h3><%= HtmlUtil.escape(firstName) %> <%= HtmlUtil.escape(lastName) %></h3>
+                    <p><%= HtmlUtil.escape(email) %></p>
+                    <p style="margin-top:4px;font-size:12px;color:#94a3b8;">@<%= HtmlUtil.escape(userName) %></p>
                 </div>
 
                 <!-- Right: settings sections -->
@@ -161,28 +176,29 @@
                         </div>
                         <div class="settings-section-body">
                             <form action="profile" method="post" class="form-stack" id="infoForm">
+                                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                                 <input type="hidden" name="action" value="updateInfo">
                                 <div class="field-row">
                                     <div class="field-group">
                                         <label for="firstName">First Name <span class="req">*</span></label>
                                         <input type="text" id="firstName" name="firstName"
-                                               value="<%= firstName %>" required>
+                                               value="<%= HtmlUtil.escape(firstName) %>" required>
                                     </div>
                                     <div class="field-group">
                                         <label for="lastName">Last Name <span class="req">*</span></label>
                                         <input type="text" id="lastName" name="lastName"
-                                               value="<%= lastName %>" required>
+                                               value="<%= HtmlUtil.escape(lastName) %>" required>
                                     </div>
                                 </div>
                                 <div class="field-group">
                                     <label for="email">Email Address <span class="req">*</span></label>
                                     <input type="email" id="email" name="email"
-                                           value="<%= email %>" required>
+                                           value="<%= HtmlUtil.escape(email) %>" required>
                                 </div>
                                 <div class="field-group">
                                     <label for="userName">Username <span class="req">*</span></label>
                                     <input type="text" id="userName" name="userName"
-                                           value="<%= userName %>" required>
+                                           value="<%= HtmlUtil.escape(userName) %>" required>
                                 </div>
                                 <div style="display:flex;justify-content:flex-end;margin-top:4px;">
                                     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -199,6 +215,7 @@
                         </div>
                         <div class="settings-section-body">
                             <form action="profile" method="post" class="form-stack" id="pwForm">
+                                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                                 <input type="hidden" name="action" value="updatePassword">
                                 <div class="field-group">
                                     <label for="currentPassword">Current Password <span class="req">*</span></label>
@@ -209,7 +226,7 @@
                                     <div class="field-group">
                                         <label for="newPassword">New Password <span class="req">*</span></label>
                                         <input type="password" id="newPassword" name="newPassword"
-                                               placeholder="At least 6 characters" required>
+                                               placeholder="At least 8 characters" required>
                                     </div>
                                     <div class="field-group">
                                         <label for="confirmPassword">Confirm Password <span class="req">*</span></label>
@@ -265,11 +282,17 @@
                 This will <strong>permanently delete</strong> your account and all your data.
                 This action <strong>cannot be undone</strong>.
             </p>
-            <p class="confirm-text" style="margin-bottom:16px;">
-                Enter your password to confirm:
+            <p class="confirm-text" style="margin-bottom:8px;">
+                Type exactly: <code>I understand. Delete this account.</code>
             </p>
             <form action="profile" method="post" id="deleteForm" class="form-stack">
+                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                 <input type="hidden" name="action" value="deleteAccount">
+                <div class="field-group">
+                    <label for="deletePhrase">Confirmation phrase <span class="req">*</span></label>
+                    <input type="text" id="deletePhrase" name="deletePhrase"
+                           placeholder="I understand. Delete this account." required autocomplete="off">
+                </div>
                 <div class="field-group">
                     <label for="delPassword">Password <span class="req">*</span></label>
                     <input type="password" id="delPassword" name="confirmPassword"
@@ -295,8 +318,15 @@
 
 <script>
 function submitDelete() {
+    var phrase = document.getElementById('deletePhrase').value.trim();
+    var required = 'I understand. Delete this account.';
     var pw = document.getElementById('delPassword').value.trim();
     var err = document.getElementById('delError');
+    if (phrase !== required) {
+        err.textContent = 'Confirmation phrase must match exactly.';
+        err.classList.add('visible');
+        return;
+    }
     if (!pw) {
         err.textContent = 'Password is required.';
         err.classList.add('visible');
@@ -312,8 +342,8 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 
 (function () {
-    var success = "<%= successMsg %>";
-    var error   = "<%= errorMsg %>";
+    var success = "<%= HtmlUtil.escapeJsString(successMsg) %>";
+    var error   = "<%= HtmlUtil.escapeJsString(errorMsg) %>";
     var toast   = document.getElementById("toast");
 
     function showToast(msg, isError) {

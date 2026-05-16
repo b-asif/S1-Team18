@@ -2,11 +2,14 @@ package com.myapp.controller;
 
 import com.myapp.dao.InterviewDAO;
 import com.myapp.model.Interview;
+import com.myapp.util.CsrfUtil;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/interviews")
 public class InterviewServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(InterviewServlet.class.getName());
 
     private final InterviewDAO interviewDAO = new InterviewDAO();
 
@@ -32,9 +36,11 @@ public class InterviewServlet extends HttpServlet {
         }
 
         int userId = (int) session.getAttribute("userId");
+        String q = request.getParameter("q");
 
-        List<Interview> interviews = interviewDAO.getInterviewsByUser(userId);
+        List<Interview> interviews = interviewDAO.getInterviewsForUser(userId, q);
         request.setAttribute("interviews", interviews);
+        request.setAttribute("searchQuery", q);
 
         request.getRequestDispatcher("/interviews.jsp").forward(request, response);
     }
@@ -42,6 +48,10 @@ public class InterviewServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!CsrfUtil.isValidToken(request)) {
+            response.sendRedirect(appendInterviewQuery(request, "interviews?error=csrf"));
+            return;
+        }
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
@@ -61,11 +71,11 @@ public class InterviewServlet extends HttpServlet {
                     int userId = (int) session.getAttribute("userId");
                     interviewDAO.deleteInterview(interviewId, userId);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    LOGGER.log(Level.WARNING, "Rejected invalid interviewId during delete: {0}", idParam);
                 }
             }
 
-            response.sendRedirect("interviews");
+            response.sendRedirect(appendInterviewQuery(request, "interviews"));
             return;
         }
 
@@ -84,7 +94,7 @@ public class InterviewServlet extends HttpServlet {
 
         // Validation
         if (isBlank(roleTitle) || isBlank(dateStr) || isBlank(startTimeStr)) {
-            response.sendRedirect("interviews?error=missing");
+            response.sendRedirect(appendInterviewQuery(request, "interviews?error=missing"));
             return;
         }
 
@@ -111,15 +121,28 @@ public class InterviewServlet extends HttpServlet {
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("interviews?error=server");
+            LOGGER.log(Level.SEVERE, "Failed to add interview.", e);
+            response.sendRedirect(appendInterviewQuery(request, "interviews?error=server"));
             return;
         }
 
-        response.sendRedirect("interviews");
+        response.sendRedirect(appendInterviewQuery(request, "interviews"));
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private static String appendInterviewQuery(HttpServletRequest request, String base) {
+        String q = request.getParameter("q");
+        if (q == null || q.trim().isEmpty()) {
+            return base;
+        }
+        try {
+            String enc = java.net.URLEncoder.encode(q.trim(), java.nio.charset.StandardCharsets.UTF_8.name());
+            return base + (base.contains("?") ? '&' : '?') + "q=" + enc;
+        } catch (java.io.UnsupportedEncodingException e) {
+            return base;
+        }
     }
 }

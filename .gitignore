@@ -1,2 +1,24 @@
-/build/
+﻿/build/
 .metadata/
+
+# Maven build output (never commit compiled artifacts or exploded WARs)
+target/
+*.war
+
+# Logs may contain JVM args (e.g. -Ddb.password) if copied from Tomcat
+*.log
+
+# OS junk
+.DS_Store
+
+# Local env files (secrets); keep the example tracked
+.env*
+!.env.local.example
+
+# Internal / course artifacts — keep on your machine; omit from public clone
+HISTORY.md
+PROJECT_OVERVIEW.md
+CS157A Team 18 - Project Data Model & DB Design Report.md
+
+# Private merge/integration log (never push team-facing narrative accidentally)
+INTEGRATION_NOTES_AM.md

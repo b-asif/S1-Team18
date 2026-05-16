@@ -9,27 +9,50 @@ import java.sql.Time;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InterviewDAO {
+    private static final Logger LOGGER = Logger.getLogger(InterviewDAO.class.getName());
 
     public List<Interview> getInterviewsByUser(int userId) {
+        return getInterviewsForUser(userId, null);
+    }
+
+    public List<Interview> getInterviewsForUser(int userId, String searchQuery) {
         List<Interview> interviews = new ArrayList<>();
 
-        String sql = "SELECT interviewId, roleTitle, departmentName, interviewerName, " +
-                     "interviewType, interviewDate, startTime, endTime, location, notes " +
-                     "FROM interviews WHERE userId = ? ORDER BY interviewDate DESC";
+        String base = "SELECT interviewId, roleTitle, departmentName, interviewerName, "
+                + "interviewType, interviewDate, startTime, endTime, location, notes "
+                + "FROM interviews WHERE userId = ?";
+
+        boolean hasSearch = searchQuery != null && !searchQuery.trim().isEmpty();
+        String qpat = null;
+        if (hasSearch) {
+            qpat = "%" + searchQuery.trim().replace("%", "").replace("_", "") + "%";
+            base += " AND (roleTitle LIKE ? OR COALESCE(departmentName,'') LIKE ? "
+                    + "OR COALESCE(interviewerName,'') LIKE ? OR COALESCE(interviewType,'') LIKE ? "
+                    + "OR COALESCE(location,'') LIKE ? OR COALESCE(notes,'') LIKE ?)";
+        }
+        base += " ORDER BY interviewDate DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(base)) {
 
-            stmt.setInt(1, userId);
+            int i = 1;
+            stmt.setInt(i++, userId);
+            if (hasSearch) {
+                for (int k = 0; k < 6; k++) {
+                    stmt.setString(i++, qpat);
+                }
+            }
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Interview interview = new Interview();
-
                     interview.setInterviewId(rs.getInt("interviewId"));
                     interview.setRoleTitle(rs.getString("roleTitle"));
                     interview.setDepartmentName(rs.getString("departmentName"));
@@ -40,13 +63,12 @@ public class InterviewDAO {
                     interview.setEndTime(rs.getTime("endTime"));
                     interview.setLocation(rs.getString("location"));
                     interview.setNotes(rs.getString("notes"));
-
                     interviews.add(interview);
                 }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to query interviews for user.", e);
         }
 
         return interviews;
@@ -85,7 +107,7 @@ public class InterviewDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to add interview.", e);
             return false;
         }
     }
@@ -102,8 +124,77 @@ public class InterviewDAO {
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to delete interview.", e);
             return false;
         }
+    }
+
+    /**
+     * Counts interviews scheduled from today through {@code days} days ahead (inclusive).
+     */
+    public long countInterviewsInNextDays(int userId, int days) {
+        if (days < 0) {
+            days = 0;
+        }
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(days);
+        String sql = "SELECT COUNT(*) AS cnt FROM interviews WHERE userId = ? "
+                + "AND interviewDate >= ? AND interviewDate <= ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setDate(2, Date.valueOf(start));
+            stmt.setDate(3, Date.valueOf(end));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("cnt");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to count upcoming interviews.", e);
+        }
+        return 0L;
+    }
+
+    public List<Interview> getInterviewsInNextDays(int userId, int days, int limit) {
+        if (days < 0) {
+            days = 0;
+        }
+        if (limit <= 0) {
+            limit = 20;
+        }
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(days);
+        List<Interview> interviews = new ArrayList<>();
+        String sql = "SELECT interviewId, roleTitle, departmentName, interviewerName, "
+                + "interviewType, interviewDate, startTime, endTime, location, notes "
+                + "FROM interviews WHERE userId = ? AND interviewDate >= ? AND interviewDate <= ? "
+                + "ORDER BY interviewDate ASC, startTime ASC LIMIT ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setDate(2, Date.valueOf(start));
+            stmt.setDate(3, Date.valueOf(end));
+            stmt.setInt(4, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Interview interview = new Interview();
+                    interview.setInterviewId(rs.getInt("interviewId"));
+                    interview.setRoleTitle(rs.getString("roleTitle"));
+                    interview.setDepartmentName(rs.getString("departmentName"));
+                    interview.setInterviewerName(rs.getString("interviewerName"));
+                    interview.setInterviewType(rs.getString("interviewType"));
+                    interview.setInterviewDate(rs.getDate("interviewDate"));
+                    interview.setStartTime(rs.getTime("startTime"));
+                    interview.setEndTime(rs.getTime("endTime"));
+                    interview.setLocation(rs.getString("location"));
+                    interview.setNotes(rs.getString("notes"));
+                    interviews.add(interview);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to query upcoming interviews.", e);
+        }
+        return interviews;
     }
 }

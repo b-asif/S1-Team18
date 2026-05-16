@@ -1,3 +1,9 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.myapp.util.CsrfUtil" %>
+<%
+    String csrfToken = CsrfUtil.getOrCreateToken(session);
+    String loginError = request.getParameter("error");
+%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,7 +44,7 @@
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat">
-                        <span class="stat-number">4.8★</span>
+                        <span class="stat-number">4.8<span aria-hidden="true">&#9733;</span></span>
                         <span class="stat-label">User rating</span>
                     </div>
                     <div class="stat-divider"></div>
@@ -71,6 +77,7 @@
                 </div>
 
                 <form class="login-form" action="login" method="post">
+                    <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                     <div id="formError" class="error-banner"></div>
 
                     <div class="field-group">
@@ -112,6 +119,22 @@
 <script>
 (function () {
     var params = new URLSearchParams(window.location.search);
+    var error = params.get('error');
+    var formError = document.getElementById('formError');
+
+    if (error) {
+        formError.style.display = 'block';
+        if (error === 'missing') {
+            formError.textContent = 'Please enter your username/email and password.';
+        } else if (error === 'invalid') {
+            formError.textContent = 'Invalid credentials.';
+        } else if (error === 'csrf') {
+            formError.textContent = 'Session validation failed. Please try again.';
+        } else {
+            formError.textContent = 'Server error. Please try again.';
+        }
+    }
+
     if (params.get('registered') === '1') {
         document.getElementById('successMsg').style.display = 'block';
     }

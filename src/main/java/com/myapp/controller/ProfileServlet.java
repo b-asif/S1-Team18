@@ -13,6 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.myapp.dao.UserDAO;
 import com.myapp.model.User;
+import com.myapp.util.CsrfUtil;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
@@ -44,6 +45,10 @@ public class ProfileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        if (!CsrfUtil.isValidToken(req)) {
+            resp.sendRedirect("profile?error=csrf");
+            return;
+        }
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
@@ -110,7 +115,7 @@ public class ProfileServlet extends HttpServlet {
             return;
         }
 
-        if (newPassword.length() < 6) {
+        if (newPassword.length() < 8) {
             resp.sendRedirect("profile?error=pwshort");
             return;
         }
@@ -140,9 +145,16 @@ public class ProfileServlet extends HttpServlet {
                                      HttpSession session, int userId) throws IOException {
 
         String confirmPassword = req.getParameter("confirmPassword");
+        String deletePhrase = trim(req.getParameter("deletePhrase"));
+        final String requiredPhrase = "I understand. Delete this account.";
 
         if (isBlank(confirmPassword)) {
             resp.sendRedirect("profile?error=delmissing");
+            return;
+        }
+
+        if (!requiredPhrase.equals(deletePhrase)) {
+            resp.sendRedirect("profile?error=delphrase");
             return;
         }
 
