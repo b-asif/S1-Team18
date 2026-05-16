@@ -1,18 +1,21 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.myapp.util.CsrfUtil" %>
+<%@ page import="com.myapp.util.HtmlUtil" %>
 <%
-    // Step is driven by whether the servlet placed a resetUserId in session
-    boolean isStep2 = (session.getAttribute("resetUserId") != null)
-                   || "2".equals(request.getParameter("step"));
+    String csrfToken = CsrfUtil.getOrCreateToken(session);
+    String tokenParam = request.getParameter("token");
+    boolean isStep2 = tokenParam != null && !tokenParam.trim().isEmpty();
+    boolean sent = "1".equals(request.getParameter("sent"));
 
     String errorParam = request.getParameter("error");
     String errorMsg   = "";
 
-    if ("missing".equals(errorParam))   errorMsg = "Please fill in all fields.";
-    else if ("notfound".equals(errorParam)) errorMsg = "No account found with that email or username.";
+    if ("missing".equals(errorParam)) errorMsg = "Please fill in all fields.";
     else if ("mismatch".equals(errorParam)) errorMsg = "Passwords do not match.";
-    else if ("tooshort".equals(errorParam)) errorMsg = "Password must be at least 6 characters.";
-    else if ("session".equals(errorParam))  errorMsg = "Your session expired. Please start again.";
-    else if ("server".equals(errorParam))   errorMsg = "A server error occurred. Please try again.";
+    else if ("tooshort".equals(errorParam)) errorMsg = "Password must be at least 8 characters.";
+    else if ("session".equals(errorParam)) errorMsg = "Reset token is invalid or expired.";
+    else if ("csrf".equals(errorParam)) errorMsg = "Session validation failed. Please retry.";
+    else if ("server".equals(errorParam)) errorMsg = "A server error occurred. Please try again.";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -57,7 +60,7 @@
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat">
-                    <span class="stat-number">4.8★</span>
+                    <span class="stat-number">4.8<span aria-hidden="true">&#9733;</span></span>
                     <span class="stat-label">User rating</span>
                 </div>
                 <div class="stat-divider"></div>
@@ -74,17 +77,24 @@
         <div class="form-container">
 
             <% if (!isStep2) { %>
-            <!-- ── Step 1: look up account ── -->
             <div class="form-header">
                 <h2>Reset Password</h2>
                 <p>Enter the email or username associated with your account.</p>
             </div>
+
+            <% if (sent) { %>
+            <div style="padding:10px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;font-size:13px;color:#059669;margin-bottom:16px;">
+                If that account exists, a reset token was generated. For local testing, copy the token from the server logs and open
+                <code style="font-family:inherit;">forgot-password?token=...</code>.
+            </div>
+            <% } %>
 
             <% if (!errorMsg.isEmpty()) { %>
             <div class="error-banner visible" style="margin-bottom:20px;"><%= errorMsg %></div>
             <% } %>
 
             <form class="login-form" action="forgot-password" method="post">
+                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                 <input type="hidden" name="action" value="lookup">
 
                 <div class="field-group">
@@ -102,7 +112,6 @@
             </div>
 
             <% } else { %>
-            <!-- ── Step 2: set new password ── -->
             <div class="form-header">
                 <h2>New Password</h2>
                 <p>Choose a new password for your account.</p>
@@ -113,12 +122,14 @@
             <% } %>
 
             <form class="login-form" action="forgot-password" method="post" id="resetForm">
+                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
                 <input type="hidden" name="action" value="reset">
+                <input type="hidden" name="resetToken" value="<%= HtmlUtil.escape(tokenParam) %>">
 
                 <div class="field-group">
                     <label for="newPassword">New Password</label>
                     <input type="password" id="newPassword" name="newPassword"
-                           placeholder="At least 6 characters" autofocus>
+                           placeholder="At least 8 characters" autofocus>
                 </div>
 
                 <div class="field-group">

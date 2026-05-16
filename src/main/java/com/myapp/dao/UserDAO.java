@@ -7,14 +7,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserDAO {
+    private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT userId, firstName, email FROM Users";
+        String sql = "SELECT userId, firstName, userName, email, isAdmin FROM Users";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -24,19 +28,21 @@ public class UserDAO {
                 User user = new User();
                 user.setId(rs.getInt("userId"));
                 user.setName(rs.getString("firstName"));
+                user.setUserName(rs.getString("userName"));
                 user.setEmail(rs.getString("email"));
+                user.setAdmin(rs.getBoolean("isAdmin"));
                 users.add(user);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load users list.", e);
         }
 
         return users;
     }
 
     public User getUserById(int userId) {
-        String sql = "SELECT userId, firstName, lastName, email, userName FROM Users WHERE userId = ?";
+        String sql = "SELECT userId, firstName, lastName, email, userName, isAdmin FROM Users WHERE userId = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -49,11 +55,12 @@ public class UserDAO {
                     user.setLastName(rs.getString("lastName"));
                     user.setEmail(rs.getString("email"));
                     user.setUserName(rs.getString("userName"));
+                    user.setAdmin(rs.getBoolean("isAdmin"));
                     return user;
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load user profile by ID.", e);
         }
         return null;
     }
@@ -90,7 +97,7 @@ public class UserDAO {
             return null; // success
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to update user profile.", e);
             return "server";
         }
     }
@@ -108,7 +115,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to read password hash.", e);
         }
         return null;
     }
@@ -125,7 +132,7 @@ public class UserDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to update password hash.", e);
             return false;
         }
     }
@@ -144,7 +151,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to resolve user by identifier.", e);
         }
         return -1;
     }
@@ -160,7 +167,66 @@ public class UserDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to delete user account.", e);
+            return false;
+        }
+    }
+
+    /**
+     * Creates a reset token entry with expiration. Token value should be pre-hashed.
+     */
+    public boolean storePasswordResetToken(int userId, String tokenHash, Timestamp expiresAt) {
+        String sql = "INSERT INTO PasswordResetTokens (userId, tokenHash, expiresAt) VALUES (?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setString(2, tokenHash);
+            stmt.setTimestamp(3, expiresAt);
+            stmt.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to store password reset token.", e);
+            return false;
+        }
+    }
+
+    /**
+     * Resolves userId for a valid, unexpired token hash.
+     */
+    public int getUserIdByValidResetTokenHash(String tokenHash) {
+        String sql = "SELECT userId FROM PasswordResetTokens " +
+                     "WHERE tokenHash = ? AND expiresAt > NOW() ORDER BY resetId DESC LIMIT 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, tokenHash);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("userId");
+                }
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to validate password reset token.", e);
+        }
+        return -1;
+    }
+
+    /**
+     * Removes a token so it cannot be reused.
+     */
+    public boolean consumePasswordResetToken(String tokenHash) {
+        String sql = "DELETE FROM PasswordResetTokens WHERE tokenHash = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, tokenHash);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to consume password reset token.", e);
             return false;
         }
     }

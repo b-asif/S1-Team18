@@ -2,10 +2,13 @@ package com.myapp.controller;
 
 import com.myapp.dao.TechnicalDAO;
 import com.myapp.model.Technical;
+import com.myapp.util.CsrfUtil;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,6 +20,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/technicals")
 public class TechnicalServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(TechnicalServlet.class.getName());
 
     private final TechnicalDAO technicalDAO = new TechnicalDAO();
 
@@ -32,8 +36,8 @@ public class TechnicalServlet extends HttpServlet {
 
         int userId = (int) session.getAttribute("userId");
 
-        List<Technical> assessments = technicalDAO.getAssessmentsByUser(userId);
-        request.setAttribute("assessments", assessments);
+        List<Technical> technicals = technicalDAO.getAssessmentsByUser(userId);
+        request.setAttribute("technicals", technicals);
 
         request.getRequestDispatcher("/technicals.jsp").forward(request, response);
     }
@@ -41,6 +45,10 @@ public class TechnicalServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!CsrfUtil.isValidToken(request)) {
+            response.sendRedirect("technicals?error=csrf");
+            return;
+        }
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
@@ -60,7 +68,7 @@ public class TechnicalServlet extends HttpServlet {
                     int userId = (int) session.getAttribute("userId");
                     technicalDAO.deleteAssessment(assessmentId, userId);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    LOGGER.log(Level.WARNING, "Rejected invalid assessmentId during delete: {0}", idParam);
                 }
             }
 
@@ -103,7 +111,7 @@ public class TechnicalServlet extends HttpServlet {
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to add assessment.", e);
             response.sendRedirect("technicals?error=server");
             return;
         }
