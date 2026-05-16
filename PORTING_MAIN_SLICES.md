@@ -10,7 +10,7 @@ Commit messages stay short and do not mention other branch names.
 |------|----------------|--------------------------------|--------|
 | 1 | CSRF / POST + servlet validation | Utilities `CsrfUtil`, `HtmlUtil`, `ResetTokenUtil` + tests; servlets listed in plan (all POST paths); DAO/model support: `ApplicationDAO`, `InterviewDAO`, `UserDAO`, `TagDAO`, `Application`, `User`; related JSPs; **`pom.xml`** test deps needed for **`mvn verify`**. (`login.js` unchanged vs baseline.) | done |
 | 2 | JDBC statistics + dashboard metrics | `DashboardServlet.java`, `StatisticsServlet.java`, `statistics.jsp`, `TechnicalDAO.java` (HTML escaping for user fields already in slice 1 JSPs). | done |
-| 3 | Deploy descriptor / session cookies | `src/main/webapp/WEB-INF/web.xml`, `src/main/webapp/web.xml` | pending |
+| 3 | Deploy descriptor / session cookies | `WEB-INF/web.xml`, root `web.xml`. | done |
 | 4 | Admin users (verification) | *No separate path delta if slice 1 included `users.jsp` + `UserServlet`* | N/A expected |
 | 5 | Landing / servlet entry | `index.jsp` servlet-friendly links (from `am`) | pending |
 | 6 | Build hygiene | `.gitignore`; remove tracked under `target/` if present | pending |
