@@ -1,17 +1,21 @@
 package com.myapp.dao;
 
+import com.myapp.model.Technical;
+import com.myapp.util.DBConnection;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.Types;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.myapp.model.Technical;
-import com.myapp.util.DBConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TechnicalDAO {
+    private static final Logger LOGGER = Logger.getLogger(TechnicalDAO.class.getName());
 
     public List<Technical> getAssessmentsByUser(int userId) {
         List<Technical> assessments = new ArrayList<>();
@@ -42,7 +46,7 @@ public class TechnicalDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to query assessments for user.", e);
         }
 
         return assessments;
@@ -66,7 +70,11 @@ public class TechnicalDAO {
             stmt.setInt(1, userId);
             stmt.setString(2, assessmentTitle);
             stmt.setDate(3, assignedDate);
-            stmt.setDate(4, dueDate);
+            if (dueDate != null) {
+                stmt.setDate(4, dueDate);
+            } else {
+                stmt.setNull(4, Types.DATE);
+            }
             stmt.setString(5, assessmentNotes);
             stmt.setString(6, completionStatus);
             stmt.setString(7, scoreOrPassFail);
@@ -75,7 +83,7 @@ public class TechnicalDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to add assessment.", e);
             return false;
         }
     }
@@ -92,8 +100,44 @@ public class TechnicalDAO {
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to delete assessment.", e);
             return false;
         }
+    }
+
+    public long countIncompleteAssessments(int userId) {
+        String sql = "SELECT COUNT(*) AS cnt FROM technicals WHERE userId = ? "
+                + "AND (completionStatus IS NULL OR UPPER(TRIM(completionStatus)) <> 'COMPLETED')";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("cnt");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to count incomplete assessments.", e);
+        }
+        return 0L;
+    }
+
+    public long countOverdueAssessments(int userId) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        String sql = "SELECT COUNT(*) AS cnt FROM technicals WHERE userId = ? AND dueDate IS NOT NULL "
+                + "AND dueDate < ? AND (completionStatus IS NULL OR UPPER(TRIM(completionStatus)) <> 'COMPLETED')";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setDate(2, Date.valueOf(today));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("cnt");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to count overdue assessments.", e);
+        }
+        return 0L;
     }
 }
